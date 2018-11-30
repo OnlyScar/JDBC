@@ -9,6 +9,10 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Properties;
 
+import javax.sql.DataSource;
+
+import com.mchange.v2.c3p0.ComboPooledDataSource;
+
 
 public class JdbcUtils {
 
@@ -16,10 +20,11 @@ public class JdbcUtils {
     private static String url = null;
     private static String username = null;
     private static String password = null;
+    private static ComboPooledDataSource ds = null;
     
     static{
         try{
-            //读取db.properties文件中的数据库连接信息
+            /*//读取db.properties文件中的数据库连接信息
             InputStream in = JdbcUtils.class.getClassLoader().getResourceAsStream("jdbc.properties");
             Properties prop = new Properties();
             prop.load(in);
@@ -34,7 +39,11 @@ public class JdbcUtils {
             password = prop.getProperty("password");
             
             //加载数据库驱动
-            Class.forName(driver);
+            Class.forName(driver);*/
+            
+            //通过读取C3P0的xml配置文件创建数据源，C3P0的xml配置文件c3p0-config.xml必须放在src目录下
+            //ds = new ComboPooledDataSource();//使用C3P0的默认配置来创建数据源
+            ds = new ComboPooledDataSource("MySQL");//使用C3P0的命名配置来创建数据源
             
         }catch (Exception e) {
             throw new ExceptionInInitializerError(e);
@@ -50,7 +59,8 @@ public class JdbcUtils {
     * @throws SQLException
     */ 
     public static Connection getConnection() throws SQLException{
-        return DriverManager.getConnection(url, username,password);
+        //return DriverManager.getConnection(url, username,password);
+    	return ds.getConnection();
     }
     
     /**
@@ -158,4 +168,15 @@ public class JdbcUtils {
             release(conn, st, rs);
         }
     }
+	
+	/**
+	* @Method: getDataSource
+	* @Description: 获取数据源
+	* @Anthor:孤傲苍狼
+	* @return DataSource
+	*/ 
+	public static DataSource getDataSource() {
+		// TODO Auto-generated method stub
+		return ds;
+	}
 }
